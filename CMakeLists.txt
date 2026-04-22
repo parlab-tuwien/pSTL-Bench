@@ -11,7 +11,7 @@ option(PSTL_BENCH_USE_PAPI "Use PAPI for performance counters" OFF)
 option(PSTL_BENCH_USE_LIKWID "Use LIKWID for performance counters" OFF)
 
 set(PSTL_BENCH_BACKEND CACHE STRING "Select the backend to use for std:: algorithms")
-set_property(CACHE PSTL_BENCH_BACKEND PROPERTY STRINGS TBB GNU HPX NVHPC_OMP NVHPC_CUDA)
+set_property(CACHE PSTL_BENCH_BACKEND PROPERTY STRINGS TBB GNU HPX NVHPC_OMP NVHPC_CUDA HIP_CPU HIP_GPU)
 set(PSTL_BENCH_DATA_TYPE CACHE STRING "Select the data type to use for the benchmarks")
 set_property(CACHE PSTL_BENCH_DATA_TYPE PROPERTY STRINGS int float double)
 
@@ -54,6 +54,8 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake;${CPM_SOURCE_CACHE};${CMAKE_M
 include(cmake/register_backend.cmake)
 
 register_backend(TBB)
+register_backend(HIP_CPU)
+register_backend(HIP_GPU)
 register_backend(HPX)
 register_backend(GNU)
 register_backend(NVHPC_CUDA)
@@ -132,10 +134,10 @@ endif ()
 CPMAddPackage(
         NAME benchmark
         GITHUB_REPOSITORY google/benchmark
-        VERSION 1.8.3
+        VERSION 1.9.5
         OPTIONS
-        "BENCHMARK_ENABLE_TESTING Off" # disable tests
-        "BENCHMARK_ENABLE_LIBPFM ON" # enable performance counters
+        "BENCHMARK_ENABLE_TESTING OFF" # disable tests
+        "BENCHMARK_ENABLE_LIBPFM OFF" # enable performance counters
         "BENCHMARK_ENABLE_WERROR OFF" # make sure google benchmark builds no mather what
 )
 
