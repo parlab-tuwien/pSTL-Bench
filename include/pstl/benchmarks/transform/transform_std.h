@@ -5,7 +5,7 @@
 
 namespace benchmark_transform
 {
-	const auto transform_std = [](auto && policy, auto & input, auto && f) {
-		std::transform(policy, input.begin(), input.end(), input.begin(), f);
+	const auto transform_std = [](auto && policy, auto & input, auto & output, auto && f) {
+		std::transform(policy, input.begin(), input.end(), output.begin(), f);
 	};
 } // namespace benchmark_transform

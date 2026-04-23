@@ -2,8 +2,10 @@
 
 #include <cmath>
 
-#include "pstl/utils/utils.h"
 #include <benchmark/benchmark.h>
+
+#include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_transform_inclusive_scan
 {
@@ -18,21 +20,28 @@ namespace benchmark_transform_inclusive_scan
 
 		const auto & size = state.range(0);
 
-		auto input = pstl::generate_increment(execution_policy, size);
-
+		auto input  = pstl::generate_increment(execution_policy, size);
 		auto output = input;
-		std::fill(output.begin(), output.end(), 0);
 
-		const auto solution = std::transform_inclusive_scan(std::execution::seq, input.begin(), input.end(),
-		                                                    output.begin(), std::plus<>(), kernel);
+		std::optional<bool> verification_result;
 
 		for (auto _ : state)
 		{
-			const auto result =
-			    pstl::wrap_timing(state, std::forward<Function>(f), execution_policy, input, output, kernel);
-			assert(pstl::are_equivalent(result, solution));
+			std::ignore = pstl::wrap_timing(state, std::forward<Function>(f), execution_policy, input, output, kernel);
+
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					auto solution = input;
+					std::ignore   = std::transform_inclusive_scan(input.begin(), input.end(), solution.begin(),
+					                                              std::plus<>(), kernel);
+					return pstl::are_equivalent(output, solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 } // namespace benchmark_transform_inclusive_scan

@@ -195,9 +195,6 @@ endforeach ()
 
 target_include_directories(${PROJECT_NAME} PRIVATE include/)
 
-# we need cassert even in release builds to make sure certain vars are not optimised away
-string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-
 # append backend specific compile options
 target_compile_options(${PROJECT_NAME} PRIVATE ${BACKEND_COMPILE_OPTIONS})
 

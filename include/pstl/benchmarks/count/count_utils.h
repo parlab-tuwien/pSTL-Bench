@@ -5,6 +5,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_count
 {
@@ -22,17 +23,25 @@ namespace benchmark_count
 		static std::minstd_rand               engine{ rd() };
 		std::uniform_int_distribution<size_t> gen(0, input.size() - 1);
 
+		std::optional<bool> verification_result = std::nullopt;
+
 		for (auto _ : state)
 		{
 			const auto value = gen(engine);
 
 			const auto output = pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, input, value);
 
-			const auto solution = std::count(input.begin(), input.end(), value);
-
-			assert(pstl::are_equivalent(output, solution));
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					const auto solution = std::count(input.begin(), input.end(), value);
+					return pstl::are_equivalent(output, solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 } // namespace benchmark_count

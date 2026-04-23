@@ -6,6 +6,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_none_of
 {
@@ -22,14 +23,24 @@ namespace benchmark_none_of
 			return val > size;
 		};
 
+		std::optional<bool> verification_result;
+
 		for (auto _ : state)
 		{
 			const auto output = pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, input, condition);
 
-			assert(pstl::are_equivalent(output, true));
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					const auto result = true;
+					return pstl::are_equivalent(result, output);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 
 } // namespace benchmark_none_of

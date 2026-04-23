@@ -5,6 +5,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_search
 {
@@ -19,14 +20,24 @@ namespace benchmark_search
 		const auto data2 = pstl::generate_increment(execution_policy, size / 2, static_cast<pstl::elem_t>(size / 4),
 		                                            static_cast<pstl::elem_t>(1));
 
-		const auto result = std::search(data1.begin(), data1.end(), data2.begin(), data2.end());
+		std::optional<bool> verification_result;
+
 
 		for (auto _ : state)
 		{
 			const auto output = pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, data1, data2);
-			assert(pstl::are_equivalent(result, output));
+
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					const auto solution = std::search(data1.begin(), data1.end(), data2.begin(), data2.end());
+					return pstl::are_equivalent(*solution, *output);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, data1, data2));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 } // namespace benchmark_search

@@ -3,6 +3,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_reduce
 {
@@ -15,15 +16,23 @@ namespace benchmark_reduce
 
 		auto input = pstl::generate_increment(execution_policy, size);
 
-		const auto solution = std::accumulate(input.begin(), input.end(), pstl::elem_t{});
+		std::optional<bool> verification_result;
 
 		for (auto _ : state)
 		{
 			const auto output = pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, input);
 
-			assert(pstl::are_equivalent(output, solution));
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					const auto solution = std::accumulate(input.begin(), input.end(), pstl::elem_t{});
+					return pstl::are_equivalent(output, solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 } // namespace benchmark_reduce

@@ -1,8 +1,9 @@
 #pragma once
 
-#include "pstl/utils/utils.h"
-
 #include <benchmark/benchmark.h>
+
+#include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_transform_reduce
 {
@@ -19,17 +20,25 @@ namespace benchmark_transform_reduce
 
 		auto input = pstl::generate_increment(execution_policy, size);
 
-		const auto solution = std::transform_reduce(std::execution::seq, input.cbegin(), input.cend(), pstl::elem_t{},
-		                                            std::plus<>(), transform_kernel);
+		std::optional<bool> verification_result;
 
 		for (auto _ : state)
 		{
 			const auto output =
 			    pstl::wrap_timing(state, std::forward<Function>(f), execution_policy, input, transform_kernel);
 
-			assert(pstl::are_equivalent(solution, output));
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					const auto solution = std::transform_reduce(input.cbegin(), input.cend(), pstl::elem_t{},
+					                                            std::plus<>(), transform_kernel);
+					return pstl::are_equivalent(solution, output);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 } // namespace benchmark_transform_reduce

@@ -5,6 +5,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_set_intersection
 {
@@ -21,23 +22,28 @@ namespace benchmark_set_intersection
 
 		const auto max_size = std::min(data1.size(), data2.size());
 
-		auto result = std::vector<pstl::elem_t>(max_size, std::numeric_limits<pstl::elem_t>::quiet_NaN());
-		auto output = result;
+		auto output = std::vector<pstl::elem_t>(max_size, std::numeric_limits<pstl::elem_t>::quiet_NaN());
 
-		std::ignore = std::set_intersection(data1.begin(), data1.end(), data2.begin(), data2.end(), result.begin());
-		std::sort(result.begin(), result.end());
+		std::optional<bool> verification_result;
 
 		for (auto _ : state)
 		{
 			pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, data1, data2, output);
 
-			std::sort(output.begin(), output.end());
-
-			assert(std::equal(result.begin(), result.end(), output.begin(), output.end()));
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					auto solution = std::vector<pstl::elem_t>(max_size, std::numeric_limits<pstl::elem_t>::quiet_NaN());
+					std::set_intersection(data1.begin(), data1.end(), data2.begin(), data2.end(), solution.begin());
+					return pstl::are_equivalent(output, solution);
+				});
+			}
 
 			std::fill(output.begin(), output.end(), std::numeric_limits<pstl::elem_t>::quiet_NaN());
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, data1, data2));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 } // namespace benchmark_set_intersection
