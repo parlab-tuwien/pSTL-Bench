@@ -30,7 +30,7 @@ namespace benchmark_inclusive_scan
 			{
 				verification_passed = pstl::verify([&]() {
 					auto solution = pstl::get_vector<Policy>(size);
-					std::inclusive_scan(std::execution::seq, input.begin(), input.end(), solution.begin());
+					std::inclusive_scan(input.begin(), input.end(), solution.begin());
 					return pstl::are_equivalent(output, solution);
 				});
 			}

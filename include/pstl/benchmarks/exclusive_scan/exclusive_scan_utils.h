@@ -30,8 +30,7 @@ namespace benchmark_exclusive_scan
 			{
 				verification_passed = pstl::verify([&]() {
 					auto solution = pstl::get_vector<Policy>(size);
-					std::exclusive_scan(std::execution::seq, input.begin(), input.end(), solution.begin(),
-					                    pstl::elem_t{});
+					std::exclusive_scan(input.begin(), input.end(), solution.begin(), pstl::elem_t{});
 					return pstl::are_equivalent(output, solution);
 				});
 			}

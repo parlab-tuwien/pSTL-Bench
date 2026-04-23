@@ -27,7 +27,7 @@ namespace benchmark_fill
 			if (not verification_passed.has_value())
 			{
 				verification_passed = pstl::verify([&]() {
-					return std::all_of(execution_policy, input.begin(), input.end(),
+					return std::all_of(input.begin(), input.end(),
 					                   [](const auto & val) { return pstl::are_equivalent(val, pstl::elem_t{}); });
 				});
 			}

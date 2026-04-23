@@ -21,7 +21,7 @@ namespace benchmark_transform
 
 		const auto & size = state.range(0);
 
-		auto input = pstl::generate_increment(execution_policy, size);
+		auto input  = pstl::generate_increment(execution_policy, size);
 		auto output = input;
 
 		std::optional<bool> verification_result;

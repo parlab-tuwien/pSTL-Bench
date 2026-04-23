@@ -28,8 +28,8 @@ namespace benchmark_equal
 
 			if (not verification_passed.has_value())
 			{
-				verification_passed = pstl::verify(
-				    [&]() { return std::equal(execution_policy, data1.begin(), data1.end(), data2.begin()); });
+				verification_passed =
+				    pstl::verify([&]() { return std::equal(data1.begin(), data1.end(), data2.begin()); });
 			}
 		}
 

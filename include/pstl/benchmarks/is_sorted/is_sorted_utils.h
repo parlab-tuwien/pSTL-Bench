@@ -27,7 +27,7 @@ namespace benchmark_is_sorted
 			if (not verification_passed.has_value())
 			{
 				verification_passed = pstl::verify([&]() {
-					const auto solution = std::is_sorted(execution_policy, input.begin(), input.end());
+					const auto solution = std::is_sorted(input.begin(), input.end());
 					return pstl::are_equivalent(output, solution);
 				});
 			}

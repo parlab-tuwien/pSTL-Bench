@@ -28,7 +28,7 @@ namespace benchmark_max_element
 			if (not verification_result.has_value())
 			{
 				verification_result = pstl::verify([&]() {
-					const auto result = std::max_element(execution_policy, input.begin(), input.end());
+					const auto result = std::max_element(input.begin(), input.end());
 					return pstl::are_equivalent(*result, *output);
 				});
 			}

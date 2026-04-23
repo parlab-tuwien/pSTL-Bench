@@ -46,7 +46,7 @@ namespace benchmark_find
 			if (not verification_passed.has_value())
 			{
 				verification_passed = pstl::verify([&]() {
-					const auto it = std::find(execution_policy, input.begin(), input.end(), value);
+					const auto it = std::find(input.begin(), input.end(), value);
 					return it != input.end() && pstl::are_equivalent(*it, value);
 				});
 			}

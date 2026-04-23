@@ -28,7 +28,8 @@ namespace benchmark_lexicographical_compare
 			if (not verification_result.has_value())
 			{
 				verification_result = pstl::verify([&]() {
-					const auto result = std::lexicographical_compare(execution_policy, data1.begin(), data1.end(), data2.begin(), data2.end());
+					const auto result =
+					    std::lexicographical_compare(data1.begin(), data1.end(), data2.begin(), data2.end());
 					return pstl::are_equivalent(result, output);
 				});
 			}
