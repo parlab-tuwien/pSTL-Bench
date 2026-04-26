@@ -6,6 +6,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_find
 {
@@ -33,6 +34,8 @@ namespace benchmark_find
 			return input[index];
 		};
 
+		std::optional<bool> verification_passed;
+
 		for (auto _ : state)
 		{
 			// random value in [0,size)
@@ -40,10 +43,17 @@ namespace benchmark_find
 
 			const auto output = pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, input, value);
 
-			// make sure the val is really found
-			assert(output == std::find(input.begin(), input.end(), value));
+			if (not verification_passed.has_value())
+			{
+				verification_passed = pstl::verify([&]() {
+					const auto it = std::find(input.begin(), input.end(), value);
+					return it != input.end() && pstl::are_equivalent(*it, value);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input));
+
+		pstl::set_verification_counter(state, verification_passed);
 	}
 } // namespace benchmark_find

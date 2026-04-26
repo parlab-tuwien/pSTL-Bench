@@ -106,8 +106,8 @@ namespace pstl
 	template<typename ExecutionPolicy, typename ValueType = pstl::elem_t,
 	         typename Container = pstl::vector<ValueType, ExecutionPolicy>,
 	         typename Size_type = typename Container::size_type>
-	Container generate_increment(const ExecutionPolicy execution_policy, const Size_type & size, const ValueType start,
-	                             const ValueType increment)
+	Container generate_increment(const ExecutionPolicy & execution_policy, const Size_type & size,
+	                             const ValueType start, const ValueType increment)
 	{
 		auto v = pstl::get_vector<ExecutionPolicy, ValueType, Container>(size);
 
@@ -147,7 +147,7 @@ namespace pstl
 	template<typename ExecutionPolicy, typename ValueType = pstl::elem_t,
 	         typename Container = pstl::vector<ValueType, ExecutionPolicy>,
 	         typename Size_type = typename Container::size_type>
-	Container generate_decrement(const ExecutionPolicy execution_policy, const Size_type & size,
+	Container generate_decrement(const ExecutionPolicy & execution_policy, const Size_type & size,
 	                             const ValueType start_val, const ValueType decrement = 1)
 	{
 		return generate_increment(execution_policy, size, start_val, -decrement);
@@ -164,7 +164,7 @@ namespace pstl
 	template<typename ExecutionPolicy, typename ValueType = pstl::elem_t,
 	         typename Container = pstl::vector<ValueType, ExecutionPolicy>,
 	         typename Size_type = typename Container::size_type>
-	Container generate_increment(const ExecutionPolicy execution_policy, const Size_type size,
+	Container generate_increment(const ExecutionPolicy & execution_policy, const Size_type & size,
 	                             const ValueType increment)
 	{
 		return pstl::generate_increment(execution_policy, size, {}, increment);
@@ -180,7 +180,7 @@ namespace pstl
 	template<typename ExecutionPolicy, typename ValueType = pstl::elem_t,
 	         typename Container = pstl::vector<ValueType, ExecutionPolicy>,
 	         typename Size_type = typename Container::size_type>
-	Container generate_increment(const ExecutionPolicy execution_policy, const Size_type size)
+	Container generate_increment(const ExecutionPolicy & execution_policy, const Size_type & size)
 	{
 		return pstl::generate_increment(execution_policy, size, ValueType{ 1 }, ValueType{ 1 });
 	}

@@ -5,6 +5,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_adjacent_difference
 {
@@ -17,20 +18,26 @@ namespace benchmark_adjacent_difference
 
 		auto input = pstl::generate_increment(execution_policy, size);
 
-		auto output = input;
-		std::fill(output.begin(), output.end(), 0);
+		auto output = pstl::get_vector<Policy>(size);
 
-		std::adjacent_difference(input.begin(), input.end(), output.begin());
-
-		const auto solution = output.back();
+		std::optional<bool> verification_result = std::nullopt;
 
 		for (auto _ : state)
 		{
 			pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, input, output);
 
-			assert(output.back() == solution);
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					auto solution = pstl::get_vector<Policy>(size);
+					std::adjacent_difference(input.begin(), input.end(), solution.begin());
+					return pstl::are_equivalent(output, solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input, output));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 } // namespace benchmark_adjacent_difference

@@ -5,6 +5,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_equal
 {
@@ -19,11 +20,21 @@ namespace benchmark_equal
 
 		auto data2 = data1;
 
+		std::optional<bool> verification_passed;
+
 		for (auto _ : state)
 		{
 			pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, data1, data2);
+
+			if (not verification_passed.has_value())
+			{
+				verification_passed =
+				    pstl::verify([&]() { return std::equal(data1.begin(), data1.end(), data2.begin()); });
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, data1, data2));
+
+		pstl::set_verification_counter(state, verification_passed);
 	}
 } // namespace benchmark_equal

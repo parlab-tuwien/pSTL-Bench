@@ -5,6 +5,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_generate
 {
@@ -21,11 +22,24 @@ namespace benchmark_generate
 			return pstl::elem_t{};
 		};
 
+		std::optional<bool> verification_passed;
+
 		for (auto _ : state)
 		{
 			pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, input, generator);
+
+			if (not verification_passed.has_value())
+			{
+				verification_passed = pstl::verify([&]() {
+					auto solution = pstl::generate_increment(execution_policy, size);
+					std::generate(std::begin(solution), std::end(solution), generator);
+					return pstl::are_equivalent(input, solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input));
+
+		pstl::set_verification_counter(state, verification_passed);
 	}
 } // namespace benchmark_generate

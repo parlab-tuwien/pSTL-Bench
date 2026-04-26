@@ -3,8 +3,10 @@
 
 #include <cmath>
 
-#include "pstl/utils/utils.h"
 #include <benchmark/benchmark.h>
+
+#include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_transform
 {
@@ -19,13 +21,27 @@ namespace benchmark_transform
 
 		const auto & size = state.range(0);
 
-		auto input = pstl::generate_increment(execution_policy, size);
+		auto input  = pstl::generate_increment(execution_policy, size);
+		auto output = input;
+
+		std::optional<bool> verification_result;
 
 		for (auto _ : state)
 		{
-			pstl::wrap_timing(state, std::forward<Function>(f), execution_policy, input, kernel);
+			pstl::wrap_timing(state, std::forward<Function>(f), execution_policy, input, output, kernel);
+
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					auto solution = pstl::generate_increment(execution_policy, size);
+					std::transform(input.begin(), input.end(), solution.begin(), kernel);
+					return pstl::are_equivalent(output, solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 } // namespace benchmark_transform

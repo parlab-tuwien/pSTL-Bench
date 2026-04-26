@@ -8,5 +8,3 @@ namespace benchmark_partial_sort
 		return __gnu_parallel::partial_sort(begin, middle, end);
 	};
 } // namespace benchmark_partial_sort
-
-

@@ -5,6 +5,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_exclusive_scan
 {
@@ -17,20 +18,26 @@ namespace benchmark_exclusive_scan
 
 		const auto input = pstl::generate_increment(execution_policy, size);
 
-		auto output = input;
-		std::fill(output.begin(), output.end(), 0);
+		auto output = pstl::get_vector<Policy>(size);
 
-		std::exclusive_scan(std::execution::seq, input.begin(), input.end(), output.begin(), pstl::elem_t{});
-
-		const auto solution = output.back();
+		std::optional<bool> verification_passed;
 
 		for (auto _ : state)
 		{
 			pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, input, output);
 
-			assert(pstl::are_equivalent(output.back(), solution));
+			if (not verification_passed.has_value())
+			{
+				verification_passed = pstl::verify([&]() {
+					auto solution = pstl::get_vector<Policy>(size);
+					std::exclusive_scan(input.begin(), input.end(), solution.begin(), pstl::elem_t{});
+					return pstl::are_equivalent(output, solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input, output));
+
+		pstl::set_verification_counter(state, verification_passed);
 	}
 } // namespace benchmark_exclusive_scan

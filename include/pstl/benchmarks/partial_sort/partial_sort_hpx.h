@@ -8,5 +8,3 @@ namespace benchmark_partial_sort
 		return hpx::partial_sort(policy, begin, middle, end);
 	};
 } // namespace benchmark_partial_sort
-
-

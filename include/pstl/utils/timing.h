@@ -4,7 +4,9 @@
 
 #include <chrono>
 
+#ifdef PSTL_BENCH_HAVE_NUMA
 #include <numa.h>
+#endif
 
 #ifdef PSTL_BENCH_USE_PAPI
 #include <papi.h>
@@ -25,6 +27,7 @@ namespace pstl
 	template<typename Function>
 	void for_each_core(Function && f)
 	{
+#ifdef PSTL_BENCH_HAVE_NUMA
 		// 0. Get the default bitmask
 		cpu_set_t default_cpuset;
 		CPU_ZERO(&default_cpuset);
@@ -43,11 +46,14 @@ namespace pstl
 			sched_setaffinity(0, sizeof(cpuset), &cpuset);
 
 			// 1.3 Call the function
-			std::forward<Function>(f)();
+			f();
 		}
 
 		// 2. Reset the affinity to the default bitmask
 		sched_setaffinity(0, sizeof(default_cpuset), &default_cpuset);
+#else
+		f();
+#endif
 	}
 
 	inline void hw_counters_begin(const benchmark::State & state)
@@ -123,7 +129,10 @@ namespace pstl
 			{
 				std::for_each(std::begin(arg), std::end(arg), touch_elem);
 			}
-			else { touch_elem(arg); }
+			else
+			{
+				touch_elem(arg);
+			}
 		};
 		// Touch all the arguments
 		(touch(args), ...);

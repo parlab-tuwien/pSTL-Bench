@@ -5,6 +5,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_includes
 {
@@ -20,14 +21,23 @@ namespace benchmark_includes
 		const auto subset = pstl::generate_increment(execution_policy, size / 2, static_cast<pstl::elem_t>(size / 4),
 		                                             static_cast<pstl::elem_t>(1));
 
-		const auto solution = std::includes(input.begin(), input.end(), subset.begin(), subset.end());
+		std::optional<bool> verification_passed;
 
 		for (auto _ : state)
 		{
 			const auto output = pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, input, subset);
-			assert(pstl::are_equivalent(output, solution));
+
+			if (not verification_passed.has_value())
+			{
+				verification_passed = pstl::verify([&]() {
+					const auto solution = std::includes(input.begin(), input.end(), subset.begin(), subset.end());
+					return pstl::are_equivalent(output, solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input, subset));
+
+		pstl::set_verification_counter(state, verification_passed);
 	}
 } // namespace benchmark_includes

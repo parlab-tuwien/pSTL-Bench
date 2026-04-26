@@ -3,8 +3,10 @@
 
 #include <cmath>
 
-#include "pstl/utils/utils.h"
 #include <benchmark/benchmark.h>
+
+#include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_for_each
 {
@@ -40,14 +42,26 @@ namespace benchmark_for_each
 		const char * env_p = std::getenv("PSTL_BENCH_FOR_EACH_KERNEL_ITS");
 		if (env_p) { its = std::strtoul(env_p, nullptr, 10); }
 
+		std::optional<bool> verification_passed;
+
 		for (auto _ : state)
 		{
 			pstl::wrap_timing(state, std::forward<Function>(f), execution_policy, data,
 			                  [=](auto & elem) { kernel(elem, its); });
+
+			if (not verification_passed.has_value())
+			{
+				verification_passed = pstl::verify([&]() {
+					auto solution = pstl::generate_increment(execution_policy, size);
+					std::for_each(std::begin(solution), std::end(solution), [=](auto & elem) { kernel(elem, its); });
+					return pstl::are_equivalent(data, solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, data));
 
 		state.counters["kernel_its"] = static_cast<double>(its);
+		pstl::set_verification_counter(state, verification_passed);
 	}
 } // namespace benchmark_for_each

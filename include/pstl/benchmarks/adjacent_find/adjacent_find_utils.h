@@ -5,6 +5,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_adjacent_find
 {
@@ -23,20 +24,30 @@ namespace benchmark_adjacent_find
 		static std::minstd_rand               engine{ rd() };
 		std::uniform_int_distribution<size_t> gen(0, input.size() - 2);
 
+		std::optional<bool> verification_result = std::nullopt;
+
 		for (auto _ : state)
 		{
 			const auto index = gen(engine);
+			// Make two adjacent elements equal to ensure that there is at least one match
 			input[index]     = input[index + 1];
 
 			const auto output = pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, input);
 
-			const auto solution = input.begin() + index;
-
-			assert(pstl::are_equivalent(output, solution));
-
+			// Reset the input for the next iteration
 			input[index] = input[index + 1] - 1;
+
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					const auto solution = input.begin() + index;
+					return pstl::are_equivalent(*output, *solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 } // namespace benchmark_adjacent_find

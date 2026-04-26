@@ -5,13 +5,17 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_count_if
 {
 	const auto condition = [](const auto & i) {
 		// Check if the number is even
 		if constexpr (std::is_integral_v<decltype(i)>) { return i % 2 == 0; }
-		else { return static_cast<int>(i) % 2 == 0; }
+		else
+		{
+			return static_cast<int>(i) % 2 == 0;
+		}
 	};
 
 	template<class Policy, class Function>
@@ -23,15 +27,23 @@ namespace benchmark_count_if
 
 		const auto input = pstl::generate_increment(execution_policy, size);
 
-		const auto solution = std::count_if(input.begin(), input.end(), condition);
+		std::optional<bool> verification_result = std::nullopt;
 
 		for (auto _ : state)
 		{
 			const auto output = pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, input, condition);
 
-			assert(pstl::are_equivalent(output, solution));
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					const auto solution = std::count_if(input.begin(), input.end(), condition);
+					return pstl::are_equivalent(output, solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 } // namespace benchmark_count_if

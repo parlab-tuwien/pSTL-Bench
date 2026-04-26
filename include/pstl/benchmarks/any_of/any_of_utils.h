@@ -6,6 +6,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_any_of
 {
@@ -24,6 +25,8 @@ namespace benchmark_any_of
 		static std::minstd_rand               engine{ rd() };
 		std::uniform_int_distribution<size_t> gen(0, input.size() - 1);
 
+		std::optional<bool> verification_result = std::nullopt;
+
 		for (auto _ : state)
 		{
 			const auto index = gen(engine);
@@ -32,10 +35,18 @@ namespace benchmark_any_of
 			const auto output = pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, input,
 			                                      [=](const auto & val) { return val == value; });
 
-			assert(pstl::are_equivalent(output, true));
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					const auto solution = true;
+					return pstl::are_equivalent(output, solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 
 } // namespace benchmark_any_of

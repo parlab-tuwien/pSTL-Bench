@@ -5,6 +5,7 @@
 #include <benchmark/benchmark.h>
 
 #include "pstl/utils/utils.h"
+#include "pstl/utils/verification.h"
 
 namespace benchmark_all_of
 {
@@ -21,15 +22,23 @@ namespace benchmark_all_of
 			return val > 0;
 		};
 
-		const auto solution = std::all_of(input.begin(), input.end(), condition);
+		std::optional<bool> verification_result = std::nullopt;
 
 		for (auto _ : state)
 		{
 			const auto output = pstl::wrap_timing(state, std::forward<Function>(F), execution_policy, input, condition);
 
-			assert(pstl::are_equivalent(output, solution));
+			if (not verification_result.has_value())
+			{
+				verification_result = pstl::verify([&]() {
+					const auto solution = std::all_of(input.begin(), input.end(), condition);
+					return pstl::are_equivalent(output, solution);
+				});
+			}
 		}
 
 		state.SetBytesProcessed(pstl::computed_bytes(state, input));
+
+		pstl::set_verification_counter(state, verification_result);
 	}
 } // namespace benchmark_all_of
