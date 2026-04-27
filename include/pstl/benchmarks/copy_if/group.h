@@ -17,10 +17,14 @@ static void copy_if_std_wrapper(benchmark::State & state)
 	benchmark_copy_if::benchmark_wrapper<Policy>(state, benchmark_copy_if::copy_if_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define COPY_IF_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(copy_if_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::copy_if"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define COPY_IF_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define COPY_IF_STD_WRAPPER                                                               \

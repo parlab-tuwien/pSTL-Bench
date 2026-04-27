@@ -22,10 +22,14 @@ static void set_difference_std_wrapper(benchmark::State & state)
 	benchmark_set_difference::benchmark_wrapper<Policy>(state, benchmark_set_difference::set_difference_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define SET_DIFFERENCE_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(set_difference_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::set_difference"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define SET_DIFFERENCE_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define SET_DIFFERENCE_STD_WRAPPER                                                               \

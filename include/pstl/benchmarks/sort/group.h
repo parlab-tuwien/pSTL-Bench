@@ -21,10 +21,14 @@ static void sort_std_wrapper(benchmark::State & state)
 	benchmark_sort::benchmark_wrapper<Policy>(state, benchmark_sort::sort_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define SORT_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(sort_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::sort"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define SORT_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define SORT_STD_WRAPPER                                                               \

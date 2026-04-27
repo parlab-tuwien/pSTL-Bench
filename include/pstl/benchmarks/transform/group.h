@@ -23,10 +23,14 @@ static void transform_std_wrapper(benchmark::State & state)
 	benchmark_transform::benchmark_wrapper<Policy>(state, benchmark_transform::transform_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define TRANSFORM_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(transform_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::transform"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define TRANSFORM_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define TRANSFORM_STD_WRAPPER                                                               \

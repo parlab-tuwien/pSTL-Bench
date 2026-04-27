@@ -21,10 +21,14 @@ static void partial_sort_std_wrapper(benchmark::State & state)
 	benchmark_partial_sort::benchmark_wrapper<Policy>(state, benchmark_partial_sort::partial_sort_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define PARTIAL_SORT_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(partial_sort_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::partial_sort"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define PARTIAL_SORT_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define PARTIAL_SORT_STD_WRAPPER                                                               \

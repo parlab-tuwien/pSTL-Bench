@@ -21,10 +21,14 @@ static void reduce_std_wrapper(benchmark::State & state)
 	benchmark_reduce::benchmark_wrapper<Policy>(state, benchmark_reduce::reduce_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define REDUCE_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(reduce_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::reduce"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define REDUCE_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define REDUCE_STD_WRAPPER                                                               \

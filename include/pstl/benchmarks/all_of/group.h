@@ -17,10 +17,14 @@ static void all_of_std_wrapper(benchmark::State & state)
 	benchmark_all_of::benchmark_wrapper<Policy>(state, benchmark_all_of::all_of_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define ALL_OF_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(all_of_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::all_of"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define ALL_OF_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define ALL_OF_STD_WRAPPER                                                               \

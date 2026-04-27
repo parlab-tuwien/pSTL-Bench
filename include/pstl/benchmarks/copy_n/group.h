@@ -17,10 +17,14 @@ static void copy_n_std_wrapper(benchmark::State & state)
 	benchmark_copy_n::benchmark_wrapper<Policy>(state, benchmark_copy_n::copy_n_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define COPY_N_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(copy_n_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::copy_n"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define COPY_N_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define COPY_N_STD_WRAPPER                                                               \

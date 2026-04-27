@@ -21,10 +21,14 @@ static void adjacent_find_std_wrapper(benchmark::State & state)
 	benchmark_adjacent_find::benchmark_wrapper<Policy>(state, benchmark_adjacent_find::adjacent_find_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define ADJACENT_FIND_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(adjacent_find_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::adjacent_find"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define ADJACENT_FIND_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define ADJACENT_FIND_STD_WRAPPER                                                               \

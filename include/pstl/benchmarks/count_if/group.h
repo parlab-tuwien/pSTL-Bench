@@ -21,10 +21,14 @@ static void count_if_std_wrapper(benchmark::State & state)
 	benchmark_count_if::benchmark_wrapper<Policy>(state, benchmark_count_if::count_if_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define COUNT_IF_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(count_if_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::count_if"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define COUNT_IF_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define COUNT_IF_STD_WRAPPER                                                               \

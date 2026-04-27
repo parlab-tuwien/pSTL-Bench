@@ -17,10 +17,14 @@ static void fill_std_wrapper(benchmark::State & state)
 	benchmark_fill::benchmark_wrapper<Policy>(state, benchmark_fill::fill_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define FILL_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(fill_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::fill"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define FILL_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define FILL_STD_WRAPPER                                                               \

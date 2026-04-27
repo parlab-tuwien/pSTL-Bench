@@ -17,10 +17,14 @@ static void inplace_merge_std_wrapper(benchmark::State & state)
 	benchmark_inplace_merge::benchmark_wrapper<Policy>(state, benchmark_inplace_merge::inplace_merge_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define INPLACE_MERGE_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(inplace_merge_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::inplace_merge"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define INPLACE_MERGE_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define INPLACE_MERGE_STD_WRAPPER                                                               \

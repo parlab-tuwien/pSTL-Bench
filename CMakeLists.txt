@@ -11,13 +11,20 @@ include(CheckCXXSourceCompiles)
 # end region
 
 # region options
+option(PSTL_BENCH_SEQUENTIAL "Use the sequential backend" ON)
+set(PSTL_BENCH_SEQUENTIAL ${PSTL_BENCH_SEQUENTIAL} CACHE BOOL "Use the sequential backend" FORCE)
+
+if(PSTL_BENCH_SEQUENTIAL)
+    add_compile_definitions(PSTL_BENCH_USE_SEQ=1)
+endif()
+
 option(PSTL_BENCH_USE_PAR_ALLOC "Use the parallel allocator to avoid first-touch bottlenecks" OFF)
 
 option(PSTL_BENCH_USE_PAPI "Use PAPI for performance counters" OFF)
 option(PSTL_BENCH_USE_LIKWID "Use LIKWID for performance counters" OFF)
 
 set(PSTL_BENCH_BACKEND CACHE STRING "Select the backend to use for std:: algorithms")
-set_property(CACHE PSTL_BENCH_BACKEND PROPERTY STRINGS TBB GNU HPX NVHPC_OMP NVHPC_CUDA HIP_CPU HIP_GPU HIP_CPU HIP_GPU)
+set_property(CACHE PSTL_BENCH_BACKEND PROPERTY STRINGS TBB GNU HPX NVHPC_OMP NVHPC_CUDA HIP_GPU)
 set(PSTL_BENCH_DATA_TYPE CACHE STRING "Select the data type to use for the benchmarks")
 set_property(CACHE PSTL_BENCH_DATA_TYPE PROPERTY STRINGS int float double)
 
@@ -62,9 +69,6 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake;${CPM_SOURCE_CACHE};${CMAKE_M
 include(cmake/register_backend.cmake)
 
 register_backend(TBB)
-register_backend(HIP_CPU)
-register_backend(HIP_GPU)
-register_backend(HIP_CPU)
 register_backend(HIP_GPU)
 register_backend(HPX)
 register_backend(GNU)
@@ -218,13 +222,5 @@ endforeach()
 
 target_include_directories(${PROJECT_NAME} PRIVATE include/)
 
-# we need cassert even in release builds to make sure certain vars are not optimised away
-string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-
 # append backend specific compile options
 target_compile_options(${PROJECT_NAME} PRIVATE ${BACKEND_COMPILE_OPTIONS})
-
-# append further optimization options
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_options(${PROJECT_NAME} PRIVATE -O3 -march=native)
-endif()

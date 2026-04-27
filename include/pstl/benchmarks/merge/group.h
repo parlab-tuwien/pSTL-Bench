@@ -21,10 +21,14 @@ static void merge_std_wrapper(benchmark::State & state)
 	benchmark_merge::benchmark_wrapper<Policy>(state, benchmark_merge::merge_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define MERGE_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(merge_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::merge"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define MERGE_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define MERGE_STD_WRAPPER                                                               \

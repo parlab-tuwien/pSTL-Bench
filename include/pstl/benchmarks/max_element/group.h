@@ -21,10 +21,14 @@ static void max_element_std_wrapper(benchmark::State & state)
 	benchmark_max_element::benchmark_wrapper<Policy>(state, benchmark_max_element::max_element_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define MAX_ELEMENT_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(max_element_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::max_element"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define MAX_ELEMENT_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define MAX_ELEMENT_STD_WRAPPER                                                               \

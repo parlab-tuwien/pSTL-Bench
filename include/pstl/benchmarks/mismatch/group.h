@@ -21,10 +21,14 @@ static void mismatch_std_wrapper(benchmark::State & state)
 	benchmark_mismatch::benchmark_wrapper<Policy>(state, benchmark_mismatch::mismatch_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define MISMATCH_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(mismatch_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::mismatch"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define MISMATCH_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define MISMATCH_STD_WRAPPER                                                               \

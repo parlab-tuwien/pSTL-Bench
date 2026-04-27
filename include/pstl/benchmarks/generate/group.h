@@ -21,10 +21,14 @@ static void generate_std_wrapper(benchmark::State & state)
 	benchmark_generate::benchmark_wrapper<Policy>(state, benchmark_generate::generate_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define GENERATE_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(generate_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::generate"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define GENERATE_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define GENERATE_STD_WRAPPER                                                               \

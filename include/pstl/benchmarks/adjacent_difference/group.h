@@ -22,10 +22,14 @@ static void adjacent_difference_std_wrapper(benchmark::State & state)
 	                                                         benchmark_adjacent_difference::adjacent_difference_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define ADJACENT_DIFFERENCE_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(adjacent_difference_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::adjacent_difference"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define ADJACENT_DIFFERENCE_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define ADJACENT_DIFFERENCE_STD_WRAPPER                                                               \

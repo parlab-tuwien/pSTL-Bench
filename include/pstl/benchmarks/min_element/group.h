@@ -21,10 +21,14 @@ static void min_element_std_wrapper(benchmark::State & state)
 	benchmark_min_element::benchmark_wrapper<Policy>(state, benchmark_min_element::min_element_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define MIN_ELEMENT_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(min_element_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::min_element"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define MIN_ELEMENT_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define MIN_ELEMENT_STD_WRAPPER                                                               \

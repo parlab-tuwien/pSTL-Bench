@@ -21,10 +21,14 @@ static void count_std_wrapper(benchmark::State & state)
 	benchmark_count::benchmark_wrapper<Policy>(state, benchmark_count::count_std);
 }
 
+#ifdef PSTL_BENCH_USE_SEQ
 #define COUNT_SEQ_WRAPPER                                                    \
 	BENCHMARK_TEMPLATE1(count_std_wrapper, std::execution::sequenced_policy) \
 	    ->Name(PSTL_BENCH_BENCHMARK_NAME_WITH_BACKEND("SEQ", "std::count"))  \
 	    ->PSTL_BENCH_BENCHMARK_PARAMETERS
+#else
+#define COUNT_SEQ_WRAPPER
+#endif
 
 #ifdef PSTL_BENCH_USE_PSTL
 #define COUNT_STD_WRAPPER                                                               \
