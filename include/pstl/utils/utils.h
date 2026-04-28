@@ -46,7 +46,7 @@ namespace pstl
 	 */
 	static auto container_size(const auto & container)
 	{
-		using base_type = std::decay_t<decltype(container)>;
+		using base_type = typename std::decay_t<decltype(container)>::value_type;
 		return sizeof(base_type) * container.size() + sizeof(container);
 	}
 
